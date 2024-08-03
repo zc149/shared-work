@@ -7,7 +7,6 @@ import com.todo.todoList.entity.Todo;
 import com.todo.todoList.repository.TodoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -23,8 +22,8 @@ public class TodoService {
     private final TodoRepository todoRepository;
     private final UserRepository userRepository;
 
-    public List<TodoDTO> findTodoById(String name) {
-        List<Todo> todoList = todoRepository.findByUser_Name(name);
+    public List<TodoDTO> findTodoById(String name, Date date) {
+        List<Todo> todoList = todoRepository.findByUser_NameAndTodoDate(name,date);
         List<TodoDTO> todoDTO = new ArrayList<>();
 
         for (Todo todo : todoList) {
