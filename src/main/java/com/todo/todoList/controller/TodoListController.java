@@ -30,44 +30,41 @@ public class TodoListController {
 
     @PostMapping
     public ResponseEntity<List<TodoDTO>> findAllTodo(@RequestBody TodoDTO todoDTO, HttpServletRequest request) {
-        System.out.println(todoDTO.getTodoDate());
 
         String name = jwtUtil.getJwtName(request);
         Date date = todoDTO.getTodoDate();
-
         List<TodoDTO> todoList = todoService.findTodoById(name,date);
-
-        for (TodoDTO a : todoList) {
-            System.out.println(a.getContent());
-        }
 
         return ResponseEntity.ok(todoList);
     }
 
-//    @PostMapping("/create")
-//    public List<TodoDTO> saveTodo(@RequestBody TodoListDTO todoDTOList) {
-//
-//        String name = SecurityContextHolder.getContext().getAuthentication().getName();
-//
-//        todoService.saveTodo(todoDTOList.getTodoList(),name);
-//        return todoService.findTodoById(name);
-//    }
-//
-//    @PostMapping("/update")
-//    public List<TodoDTO> updateTodo(@RequestBody TodoDTO todoDTO) {
-//
-//        String name = SecurityContextHolder.getContext().getAuthentication().getName();
-//
-//        todoService.updateTodo(todoDTO, name);
-//        return todoService.findTodoById(name);
-//    }
-//
-//    @PostMapping("/delete")
-//    public List<TodoDTO> deleteTodo(@RequestBody TodoDTO todoDTO) {
-//
-//        String name = SecurityContextHolder.getContext().getAuthentication().getName();
-//
-//        todoService.deleteTodo(todoDTO, name);
-//        return todoService.findTodoById(name);
-//    }
+    @PostMapping("/create")
+    public ResponseEntity<TodoDTO> saveTodo(@RequestBody TodoDTO todoDTO, HttpServletRequest request) {
+        String name = jwtUtil.getJwtName(request);
+        todoService.saveTodo(todoDTO,name);
+        return ResponseEntity.ok(todoDTO);
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<TodoDTO> updateTodo(@RequestBody TodoDTO todoDTO, HttpServletRequest request) {
+        System.out.println(todoDTO.getStatus());
+        String name = jwtUtil.getJwtName(request);
+        todoService.updateTodo(todoDTO, name);
+        return ResponseEntity.ok(todoDTO);
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<TodoDTO> deleteTodo(@RequestBody TodoDTO todoDTO, HttpServletRequest request) {
+        String name = jwtUtil.getJwtName(request);
+        todoService.deleteTodo(todoDTO, name);
+        return ResponseEntity.ok(todoDTO);
+    }
+
+    @PostMapping("/check")
+    public ResponseEntity<TodoDTO> checkTodo(@RequestBody TodoDTO todoDTO, HttpServletRequest request) {
+        String name = jwtUtil.getJwtName(request);
+        todoService.updateTodo(todoDTO,name);
+        return ResponseEntity.ok(todoDTO);
+    }
+
 }

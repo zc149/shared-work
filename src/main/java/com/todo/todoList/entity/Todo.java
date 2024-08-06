@@ -3,10 +3,12 @@ package com.todo.todoList.entity;
 import com.todo.join.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Date;
 
 @Entity
+@DynamicUpdate
 @Setter
 @Getter
 @Builder

@@ -39,12 +39,10 @@ public class TodoService {
         return todoDTO;
     }
 
-    public void saveTodo(List<TodoDTO> todoDTOList, String name) {
+    public void saveTodo(TodoDTO todoDTO , String name) {
 
-        List<Todo> todoList = new ArrayList<>();
-
-        for (TodoDTO todoDTO : todoDTOList) {
             Optional<User> userOptional = Optional.ofNullable(userRepository.findByName(name));
+            System.out.println(todoDTO.getTodoDate());
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
 
@@ -52,15 +50,16 @@ public class TodoService {
                         .user(user)
                         .todoDate(todoDTO.getTodoDate())
                         .createdDate(Date.valueOf(LocalDate.now()))
-                        .status(todoDTO.getStatus())
+                        .status("false")
                         .content(todoDTO.getContent())
                         .build();
 
                 todoRepository.save(todo);
-            }
         }
     }
 
+
+    // 수정이랑 삭제 로직을 id로 검색하는게 아니라 findbyName으로 해서 그 아이디만 지우는게 더 좋지 않나? (생각중)
     @Transactional
     public void updateTodo(TodoDTO todoDTO, String name) {
         Optional<Todo> todoOptional = todoRepository.findById(todoDTO.getTodoId());
@@ -85,7 +84,18 @@ public class TodoService {
                     todoRepository.deleteById(todoDTO.getTodoId());
                 }
         }
-
-
     }
+
+    @Transactional
+    public void updateStatus(TodoDTO todoDTO, String name) {
+        Optional<Todo> todoOptional = todoRepository.findById(todoDTO.getTodoId());
+
+        if(todoOptional.isPresent()) {
+            Todo todo = todoOptional.get();
+            if (todo.getUser().getName().equals(name)) {
+                todo.setStatus(todoDTO.getStatus());
+            }
+        }
+    }
+
 }
