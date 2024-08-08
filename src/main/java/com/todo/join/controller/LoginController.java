@@ -1,15 +1,19 @@
 package com.todo.join.controller;
 
+import com.todo.join.dto.UserDTO;
+import com.todo.join.service.LoginService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @Controller
+@RequiredArgsConstructor
 public class LoginController {
+
+    private  final LoginService loginService;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -19,12 +23,8 @@ public class LoginController {
     @GetMapping("/home")
     public String homePage(@RequestParam String username, Model model) {
 
-        LocalDate today = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String formattedDate = today.format(formatter);
-
-        model.addAttribute("username", username);
-        model.addAttribute("today",formattedDate);
+        UserDTO userDTO = loginService.findByName(username);
+        model.addAttribute("userDTO", userDTO);
         return "home";
     }
 

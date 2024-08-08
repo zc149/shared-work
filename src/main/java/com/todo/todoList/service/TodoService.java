@@ -42,7 +42,7 @@ public class TodoService {
     public void saveTodo(TodoDTO todoDTO , String name) {
 
             Optional<User> userOptional = Optional.ofNullable(userRepository.findByName(name));
-            System.out.println(todoDTO.getTodoDate());
+
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
 

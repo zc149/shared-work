@@ -8,12 +8,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link href="sidebars.css" th:href="@{/css/home/sidebars.css}" rel="stylesheet">
+
     <script
         nonce="12e14e9f-b44d-4de6-b463-a2c8cd071a22">try { (function (w, d) { !function (bt, bu, bv, bw) { if (bt.zaraz) console.error("zaraz is loaded twice"); else { bt[bv] = bt[bv] || {}; bt[bv].executed = []; bt.zaraz = { deferred: [], listeners: [] }; bt.zaraz._v = "5773"; bt.zaraz.q = []; bt.zaraz._f = function (bx) { return async function () { var by = Array.prototype.slice.call(arguments); bt.zaraz.q.push({ m: bx, a: by }) } }; for (const bz of ["track", "set", "debug"]) bt.zaraz[bz] = bt.zaraz._f(bz); bt.zaraz.init = () => { var bA = bu.getElementsByTagName(bw)[0], bB = bu.createElement(bw), bC = bu.getElementsByTagName("title")[0]; bC && (bt[bv].t = bu.getElementsByTagName("title")[0].text); bt[bv].x = Math.random(); bt[bv].w = bt.screen.width; bt[bv].h = bt.screen.height; bt[bv].j = bt.innerHeight; bt[bv].e = bt.innerWidth; bt[bv].l = bt.location.href; bt[bv].r = bu.referrer; bt[bv].k = bt.screen.colorDepth; bt[bv].n = bu.characterSet; bt[bv].o = (new Date).getTimezoneOffset(); if (bt.dataLayer) for (const bG of Object.entries(Object.entries(dataLayer).reduce(((bH, bI) => ({ ...bH[1], ...bI[1] })), {}))) zaraz.set(bG[0], bG[1], { scope: "page" }); bt[bv].q = []; for (; bt.zaraz.q.length;) { const bJ = bt.zaraz.q.shift(); bt[bv].q.push(bJ) } bB.defer = !0; for (const bK of [localStorage, sessionStorage]) Object.keys(bK || {}).filter((bM => bM.startsWith("_zaraz_"))).forEach((bL => { try { bt[bv]["z_" + bL.slice(7)] = JSON.parse(bK.getItem(bL)) } catch { bt[bv]["z_" + bL.slice(7)] = bK.getItem(bL) } })); bB.referrerPolicy = "origin"; bB.src = "/cdn-cgi/zaraz/s.js?z=" + btoa(encodeURIComponent(JSON.stringify(bt[bv]))); bA.parentNode.insertBefore(bB, bA) };["complete", "interactive"].includes(bu.readyState) ? zaraz.init() : bt.addEventListener("DOMContentLoaded", zaraz.init) } }(w, d, "zarazData", "script"); window.zaraz._p = async j => new Promise((k => { if (j) { j.e && j.e.forEach((l => { try { const m = d.querySelector("script[nonce]"), n = m?.nonce || m?.getAttribute("nonce"), o = d.createElement("script"); n && (o.nonce = n); o.innerHTML = l; o.onload = () => { d.head.removeChild(o) }; d.head.appendChild(o) } catch (p) { console.error(`Error executing script: ${l}\n`, p) } })); Promise.allSettled((j.f || []).map((q => fetch(q[0], q[1])))) } k() })); zaraz._p({ "e": ["(function(w,d){})(window,document)"] }); })(window, document) } catch (e) { throw fetch("/cdn-cgi/zaraz/t"), e; };</script>
-</head>
-<link rel="stylesheet" href="css/style.css" th:href="@{/css/home/style.css}">
-<link rel="stylesheet" href="css/rome.css" th:href="@{css/home/rome.css}">
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+<link  th:href="@{/css/home/sidebars.css}" rel="stylesheet">
+<link rel="stylesheet"  th:href="@{/css/home/style.css}">
+<link rel="stylesheet"  th:href="@{/css/home/rome.css}">
+<link rel="stylesheet"  th:href="@{/css/home/chat.css}">
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500&display=swap" rel="stylesheet">
 
@@ -39,54 +42,6 @@
                 d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z" />
         </symbol>
     </svg>
-
-    <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
-        <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button"
-            aria-expanded="false" data-bs-toggle="dropdown" aria-label="Toggle theme (auto)">
-            <svg class="bi my-1 theme-icon-active" width="1em" height="1em">
-                <use href="#circle-half"></use>
-            </svg>
-            <span class="visually-hidden" id="bd-theme-text">테마 변경</span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
-            <li>
-                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"
-                    aria-pressed="false">
-                    <svg class="bi me-2 opacity-50" width="1em" height="1em">
-                        <use href="#sun-fill"></use>
-                    </svg>
-                    라이트
-                    <svg class="bi ms-auto d-none" width="1em" height="1em">
-                        <use href="#check2"></use>
-                    </svg>
-                </button>
-            </li>
-            <li>
-                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark"
-                    aria-pressed="false">
-                    <svg class="bi me-2 opacity-50" width="1em" height="1em">
-                        <use href="#moon-stars-fill"></use>
-                    </svg>
-                    다크
-                    <svg class="bi ms-auto d-none" width="1em" height="1em">
-                        <use href="#check2"></use>
-                    </svg>
-                </button>
-            </li>
-            <li>
-                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto"
-                    aria-pressed="true">
-                    <svg class="bi me-2 opacity-50" width="1em" height="1em">
-                        <use href="#circle-half"></use>
-                    </svg>
-                    시스템
-                    <svg class="bi ms-auto d-none" width="1em" height="1em">
-                        <use href="#check2"></use>
-                    </svg>
-                </button>
-            </li>
-        </ul>
-    </div>
 
 
     <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
@@ -131,7 +86,8 @@
                 <a href="#" class="d-flex align-items-center link-body-emphasis text-decoration-none dropdown-toggle"
                     data-bs-toggle="dropdown" aria-expanded="false">
                     <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
-                    <strong th:text="${username}"></strong>
+                    <p id="userId" th:text="${userDTO.id}" style="display:none;"></p>
+                    <strong id="userNickName" th:text="${userDTO.nickName}"></strong>
                 </a>
                 <ul class="dropdown-menu text-small shadow">
                     <li><a class="dropdown-item" href="#">New project...</a></li>
@@ -270,14 +226,44 @@
                 </div>
             </div>
         </div>
-    </main>
 
+
+        <!-- 채팅 -->
+
+        <div class="flex-shrink-0 p-3" style="width: 870px;">
+            <a href="/" class="d-flex align-items-center pb-3 mb-3 link-body-emphasis text-decoration-none border-bottom">
+                <span class="fs-5 fw-semibold">Chat</span>
+            </a>
+
+            <!-- 채팅 내용 박스 -->
+            <div class="chat-box" style="width: 830px; height: 550px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background-color: #f9f9f9;">
+
+            </div>
+
+            <!-- 입력 박스 -->
+            <div class="chat-input mt-3" style="width: 830px;">
+                <div class="input-container">
+                    <input type="text" class="form-control" placeholder="메시지를 입력하세요..." aria-label="메시지 입력" id="messageInput">
+                    <button type="button" id="sendButton" class="send-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
+                            <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+
+        </div>
+
+
+    </main>
     <script src="https://preview.colorlib.com/theme/bootstrap/calendar-17/js/jquery-3.3.1.min.js"></script>
     <script src="https://preview.colorlib.com/theme/bootstrap/calendar-17/js/popper.min.js"></script>
     <script src="https://preview.colorlib.com/theme/bootstrap/calendar-17/js/bootstrap.min.js"></script>
     <script src="https://preview.colorlib.com/theme/bootstrap/calendar-17/js/rome.js"></script>
-    <script type="module" src="../static/js/home/main.js" th:src="@{/js/home/main.js}"></script>
-    <script type="module" src="../static/js/home/modal.js" th:src="@{/js/home/modal.js}"></script>
+    <script type="module"  th:src="@{/js/home/main.js}"></script>
+    <script type="module"  th:src="@{/js/home/modal.js}"></script>
+    <script type="module"  th:src="@{/js/home/chatBox.js}"></script>
     <script defer
         src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015"
         integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ=="

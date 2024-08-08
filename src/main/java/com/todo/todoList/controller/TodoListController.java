@@ -63,7 +63,7 @@ public class TodoListController {
     @PostMapping("/check")
     public ResponseEntity<TodoDTO> checkTodo(@RequestBody TodoDTO todoDTO, HttpServletRequest request) {
         String name = jwtUtil.getJwtName(request);
-        todoService.updateTodo(todoDTO,name);
+        todoService.updateStatus(todoDTO,name);
         return ResponseEntity.ok(todoDTO);
     }
 

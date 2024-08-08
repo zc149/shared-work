@@ -1,12 +1,15 @@
 package com.todo.chatting.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Getter
-@NoArgsConstructor
+
+@Data
+@AllArgsConstructor
+@Builder
+@ToString
 public class MessageDto {
-
+    private Long userId;
     private String message;
     private String writer;
+    private String date;
 }
