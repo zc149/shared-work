@@ -1,0 +1,99 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(to top right, #92b5db 0%, #1d466c 100%);
+        }
+
+        .input-form {
+            max-width: 680px;
+            margin-top: 80px;
+            padding: 32px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        .message {
+            display: none;
+            color: green;
+            font-size: 0.9em;
+        }
+
+        .hidden {
+    display: none;
+}
+
+
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="input-form-backgroud row">
+        <div class="input-form col-md-12 mx-auto">
+            <h4 class="mb-3">회원가입</h4>
+            <form action="/join" method="post" class="validation-form" novalidate onsubmit="return validateForm()">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="name">이름</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="" required>
+                        <div class="invalid-feedback">이름을 입력해주세요.</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="nickname">닉네임</label>
+                        <input type="text" class="form-control" id="nickname" name="nickName" placeholder="" required>
+                        <div class="invalid-feedback">닉네임을 입력해주세요.</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password">비밀번호</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="특수문자 포함 8자이상" required>
+                    <div class="invalid-feedback">비밀번호를 입력해주세요.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password2">비밀번호 확인</label>
+                    <input type="password" class="form-control" id="password2" name="checkPassword" placeholder="위와 동일하게 입력해주세요" required>
+                    <div class="invalid-feedback">비밀번호를 입력해주세요.</div>
+                    <div class="message" id="password-message">비밀번호 확인 완료</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email">이메일</label>
+                    <input type="email" class="form-control" id="email" placeholder="you@example.com" name="email" required>
+                    <div class="invalid-feedback">이메일을 입력해주세요.</div>
+                </div>
+
+                <div class="mb-3 hidden" id="verification-section">
+                    <button type="button" class="btn btn-secondary" id="request-verification">인증번호 요청</button>
+                    <div class="mt-2">
+                        <label for="verification-code">인증번호</label>
+                        <input type="text" class="form-control" id="verification-code" placeholder="인증번호 입력" required>
+                        <div class="invalid-feedback">인증번호를 입력해주세요.</div>
+                        <div class="message" id="verification-message">인증번호 확인 완료</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-lg btn-block" type="submit" id="submit-button" disabled>가입 완료</button>
+            </form>
+        </div>
+    </div>
+</div>
+    <script type="module"  th:src="@{/js/join/main.js}"></script>
+</body>
+
+</html>

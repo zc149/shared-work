@@ -1,26 +1,53 @@
+.chat-box {
+    width: 830px;
+    height: 550px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
 .message {
     margin: 10px 0;
     padding: 10px;
     border-radius: 5px;
-    max-width: 70%;
+    width: 100%;
+    max-width: 300px;
+    box-sizing: border-box;
 }
 
 .sender {
     background-color: #05728f;
     color: white;
     align-self: flex-end;
+    text-align: right;
 }
 
 .receiver {
     background-color: #ebebeb;
     color: #464646;
     align-self: flex-start;
+    text-align: left;
 }
+
 
 .message-header {
     display: flex;
     justify-content: space-between;
-    font-size: 14px;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.name-box {
+    font-weight: bold;
+}
+
+.date-box {
+    font-size: 12px;
+    color: gray;
 }
 
 .message-content {
