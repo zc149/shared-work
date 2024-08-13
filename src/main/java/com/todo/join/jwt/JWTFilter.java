@@ -30,17 +30,44 @@ public class JWTFilter extends OncePerRequestFilter {
 
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if ("Authorization".equals(cookie.getName())) {
+                if ("access".equals(cookie.getName())) {
                     token = cookie.getValue();
                     break;
                 }
             }
         }
 
-        // 토큰이 없을시 필터 체인 계속 진행
-        if (token == null) {
-            log.info("@@ token null @@");
-            filterChain.doFilter(request,response);
+        String refresh = null;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("refresh")) {
+                    refresh = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+
+        // 요청 URL을 가져옵니다.
+        String requestURI = request.getRequestURI();
+
+        // 로그인 요청은 JWT 검증을 건너뜁니다.
+        if (requestURI.equals("/login")) {
+            filterChain.doFilter(request, response); // 필터 체인을 계속 진행합니다.
+            return;
+        }
+
+        // 토큰이 없을 시 필터 체인 계속 진행
+        if (token == null || token.isEmpty()) {
+            log.info("@@ token null or empty @@");
+
+            if (refresh == null) {
+                response.sendRedirect("/login");
+                return;
+            }
+
+            jwtUtil.getRefresh(request, response, refresh);
             return;
         }
 
@@ -48,7 +75,14 @@ public class JWTFilter extends OncePerRequestFilter {
         //토큰 소멸 시간 검증
         if (jwtUtil.isExpired(token)) {
             System.out.println("@@ token expired @@");
-            filterChain.doFilter(request, response);
+            jwtUtil.getRefresh(request,response,refresh);
+            return;
+        }
+
+        String category = jwtUtil.getCategory(token);
+
+        if (!category.equals("access")) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 

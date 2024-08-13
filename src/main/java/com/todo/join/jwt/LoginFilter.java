@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -57,18 +59,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, role, 60*60*1000L);
+        String access = jwtUtil.createJwt("access", username, role, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
+        /*
+          타임리프 SSR을 사용하니 CSR의 header 보다는 쿠키를 활용하는게 간편하겠다고 생각
+         */
 
-        Cookie cookie = new Cookie("Authorization" , token);
-        cookie.setHttpOnly(true);
-//        cookie.setSecure(true); // https만 허용
-        cookie.setPath("/");
-        cookie.setMaxAge(60*60); // 1시간 후 만료
-        response.addCookie(cookie);
-
-        log.info("Username: {}, Role: {}", username, role);
-
+        response.addCookie(jwtUtil.createCookie("access", access));
+        response.addCookie(jwtUtil.createCookie("refresh", refresh));
+        response.setStatus(HttpStatus.OK.value());
         response.sendRedirect("/home?username=" + username);
     }
 
@@ -77,4 +77,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     log.info("로그인 실패");
         response.setStatus(401);
     }
+
+
+
+
 }

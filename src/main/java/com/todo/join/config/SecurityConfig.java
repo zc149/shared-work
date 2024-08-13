@@ -1,6 +1,7 @@
 package com.todo.join.config;
 
 
+import com.todo.join.jwt.CustomLogoutFilter;
 import com.todo.join.jwt.JWTFilter;
 import com.todo.join.jwt.JWTUtil;
 import com.todo.join.jwt.LoginFilter;
@@ -48,6 +49,8 @@ public class SecurityConfig {
         // Form 로그인 방식 disable
         http.formLogin((auth) -> auth.disable());
 
+        http.logout((auth) -> auth.disable());
+
         // http basic 인증 방식 disable
         http.httpBasic((auth) -> auth.disable());
 
@@ -66,6 +69,9 @@ public class SecurityConfig {
         // 커스텀한 Login filter 필터 등록
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil), UsernamePasswordAuthenticationFilter.class);
+
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil), LoginFilter.class);
 
 
         //세션 설정
