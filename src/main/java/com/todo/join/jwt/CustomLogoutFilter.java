@@ -24,64 +24,59 @@ public class CustomLogoutFilter extends GenericFilterBean {
     }
 
     private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-
         String requestUri = request.getRequestURI();
-        if (!requestUri.matches("^\\/logout$")) {
-
-            filterChain.doFilter(request, response);
-            return;
-        }
-        String requestMethod = request.getMethod();
-        if (requestMethod.equals("POST")) {
-
+        if (!requestUri.equals("/logout")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String refresh = null;
+        // POST 요청은 필터 체인을 계속 진행
+        if ("POST".equals(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
+        String refresh = null;
 
-            if (cookie.getName().equals("refresh")) {
-
-                refresh = cookie.getValue();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refresh".equals(cookie.getName())) {
+                    refresh = cookie.getValue();
+                    break;
+                }
             }
         }
 
         if (refresh == null) {
-
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         try {
-            jwtUtil.isExpired(refresh);
+            jwtUtil.isExpired(refresh); // 만료 체크
         } catch (ExpiredJwtException e) {
-
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         String category = jwtUtil.getCategory(refresh);
-        if (!category.equals("refresh")) {
-
+        if (!"refresh".equals(category)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-
-
-        //로그아웃 진행
-        Cookie refreshCookie  = new Cookie("refresh", null);
-        refreshCookie .setMaxAge(0);
-        refreshCookie .setPath("/");
-        response.addCookie(refreshCookie );
+        // 로그아웃 진행
+        Cookie refreshCookie = new Cookie("refresh", null);
+        refreshCookie.setMaxAge(0);
+        refreshCookie.setPath("/");
+        response.addCookie(refreshCookie);
 
         Cookie accessCookie = new Cookie("access", null);
         accessCookie.setMaxAge(0);
         accessCookie.setPath("/");
         response.addCookie(accessCookie);
 
-        response.sendRedirect("/login");
+        response.sendRedirect("/login"); // 리디렉션
     }
 }
