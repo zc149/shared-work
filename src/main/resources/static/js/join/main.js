@@ -19,9 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isValidPassword(password) && password === password2 && password2 !== '') {
             passwordMessage.style.display = 'block';
+            passwordMessage.textContent = "비밀번호가 일치합니다.";
             passwordCheck = true;
         } else {
-            passwordMessage.style.display = 'none';
+            passwordMessage.style.display = 'block';
+            passwordMessage.textContent = "비밀번호가 일치하지 않습니다.";
+            passwordCheck = false;
         }
 
         validateButton();

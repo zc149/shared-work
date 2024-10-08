@@ -30,7 +30,6 @@ public class TodoListController {
 
     @PostMapping
     public ResponseEntity<List<TodoDTO>> findAllTodo(@RequestBody TodoDTO todoDTO, HttpServletRequest request) {
-
         String name = jwtUtil.getJwtName(request);
         Date date = todoDTO.getTodoDate();
         List<TodoDTO> todoList = todoService.findTodoById(name,date);

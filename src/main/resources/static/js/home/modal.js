@@ -8,8 +8,14 @@ document.getElementById('addButton').addEventListener('click', function () {
 // 추가 버튼 클릭 시 할 일 추가
 document.getElementById('addTodoButton').addEventListener('click', function () {
     const content = document.getElementById('todoInput').value;
-    const todoDate = document.getElementById('result').value;
-    console.log("날짜" + todoDate);
+    let todoDate = document.getElementById('result').value;
+
+    // 처음 렌더링시 날짜를 저장이 안되서 null 오류를 해결하기 위함
+    if (!todoDate) {
+        const today = new Date();
+        todoDate = today.toISOString().split('T')[0];
+    }
+
     if (content) {
 
         const todoData = { content: content, todoDate: todoDate };
