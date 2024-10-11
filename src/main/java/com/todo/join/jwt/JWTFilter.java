@@ -53,7 +53,7 @@ public class JWTFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
 
         // 로그인 요청은 JWT 검증을 건너뜁니다.
-        if (requestURI.equals("/login") || requestURI.startsWith("/css/login") || requestURI.equals("/join") || requestURI.startsWith("/js/join") || requestURI.startsWith("/mail")) {
+        if (requestURI.startsWith("/login") || requestURI.startsWith("/css/login") || requestURI.startsWith("/image") ||requestURI.equals("/join") || requestURI.startsWith("/js/join") || requestURI.startsWith("/mail")) {
             filterChain.doFilter(request, response); // 필터 체인을 계속 진행합니다.
             return;
         }
@@ -63,7 +63,7 @@ public class JWTFilter extends OncePerRequestFilter {
             log.info("@@ token null or empty @@");
 
             if (refresh == null) {
-                response.sendRedirect("/login");
+                response.sendRedirect("/login/form");
                 return;
             }
 

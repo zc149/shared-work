@@ -5,6 +5,8 @@ import com.todo.join.jwt.CustomLogoutFilter;
 import com.todo.join.jwt.JWTFilter;
 import com.todo.join.jwt.JWTUtil;
 import com.todo.join.jwt.LoginFilter;
+import com.todo.join.oauth.CustomOAuth2UserService;
+import com.todo.join.oauth.CustomOAuthSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +28,8 @@ public class SecurityConfig {
     //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuthSuccessHandler customOAuthSuccessHandler;
 
     //AuthenticationManager Bean 등록
     @Bean
@@ -55,10 +59,17 @@ public class SecurityConfig {
         // http basic 인증 방식 disable
         http.httpBasic((auth) -> auth.disable());
 
+        // oauth2
+        http.oauth2Login((oauth2) -> oauth2
+                .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                        .userService(customOAuth2UserService))
+                        .successHandler(customOAuthSuccessHandler));
+
+
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join", "/mail/**", "/css/**" , "/js/**").permitAll()
+                        .requestMatchers("/login/form", "/", "/join", "/mail/**", "/css/**" , "/js/**" , "/image/**").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
 

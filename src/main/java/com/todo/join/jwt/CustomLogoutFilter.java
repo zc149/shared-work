@@ -77,6 +77,6 @@ public class CustomLogoutFilter extends GenericFilterBean {
         accessCookie.setPath("/");
         response.addCookie(accessCookie);
 
-        response.sendRedirect("/login"); // 리디렉션
+        response.sendRedirect("/login/form"); // 리디렉션
     }
 }

@@ -15,7 +15,7 @@ public class LoginController {
 
     private  final LoginService loginService;
 
-    @GetMapping("/login")
+    @GetMapping("/login/form")
     public String loginPage() {
         return "login";
     }

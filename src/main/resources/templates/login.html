@@ -32,6 +32,11 @@
         <button class="btn btn-primary w-100 py-2" type="submit">로그인</button>
     </form>
     <button class="btn btn-primary w-100 py-2 mt-2" th:onclick="'location.href=\'/join\''">회원가입</button>
+    <button class="w-100 py-2 mt-2 d-flex align-items-center" th:onclick="'location.href=\'http://localhost:8080/oauth2/authorization/naver\''" style="background: none; border: none; padding: 0; height: 50px;">
+        <img th:src="@{/image/btnG_완성형.png}" style="width: auto; height: 100%; object-fit: contain; margin-right: 10px;" alt="네이버 로그인">
+    </button>
+
+
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
