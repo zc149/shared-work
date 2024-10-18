@@ -1,10 +1,12 @@
 package com.todo.join.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
+@Builder
 public class JoinDTO {
 
     private String name;

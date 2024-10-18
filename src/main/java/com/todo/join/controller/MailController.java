@@ -5,10 +5,14 @@ import com.todo.join.dto.EmailRequestDTO;
 import com.todo.join.service.MailSendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -19,9 +23,14 @@ public class MailController {
     private final MailSendService mailSendService;
 
     @PostMapping("/send-certification")
-    public String mailSend(@RequestBody EmailRequestDTO emailRequestDTO) {
+    public ResponseEntity<Map<String,String>> mailSend(@RequestBody EmailRequestDTO emailRequestDTO) {
       log.info("인증 요청 이메일 : " + emailRequestDTO.getEmail());
-      return mailSendService.joinEmail(emailRequestDTO.getEmail());
+      String result = mailSendService.joinEmail(emailRequestDTO.getEmail());
+
+      Map<String,String> response = new HashMap<>();
+      response.put("auth", result);
+
+      return ResponseEntity.ok(response);
     }
 
     @PostMapping("/authCheck")
