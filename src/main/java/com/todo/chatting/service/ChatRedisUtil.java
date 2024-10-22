@@ -24,6 +24,7 @@ public class ChatRedisUtil {
         try {
             String messageJson = objectMapper.writeValueAsString(message); // Message 객체를 JSON으로 변환
             chatRedisTemplate.opsForList().rightPush(key, messageJson);
+
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

@@ -44,7 +44,7 @@ public class ChatWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
         chatRedisUtil.incrementUserCount("1");
 
-        if ( chatRedisUtil.getUserCount("1") == 1) {
+        if (chatRedisUtil.getUserCount("1") == 1 && chatRedisUtil.getChatMessages("1").size() == 0) {
             chatService.saveAllMessagesToRedis();
             chatRedisUtil.getChatMessages("1");
         }

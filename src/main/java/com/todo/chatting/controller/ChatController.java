@@ -3,6 +3,7 @@ package com.todo.chatting.controller;
 
 import com.todo.chatting.dto.MessageDto;
 import com.todo.chatting.service.ChatRedisUtil;
+import com.todo.chatting.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -23,6 +24,7 @@ public class ChatController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatRedisUtil chatRedisUtil;
+    private final ChatService chatService;
 
     @MessageMapping("/chatting/{chattingRoomId}")
     public void sendMessage(@DestinationVariable Long chattingRoomId, MessageDto messageDto) {
@@ -38,6 +40,13 @@ public class ChatController {
 
     @GetMapping("/chatting/{chattingRoomId}/messages")
     public List<MessageDto> getMessages(@PathVariable Long chattingRoomId) {
+
+        List<MessageDto> messages = chatRedisUtil.getChatMessages(String.valueOf(chattingRoomId));
+
+        if (messages.size() == 0) {
+            chatService.saveAllMessagesToRedis();
+        }
+
         return chatRedisUtil.getChatMessages(String.valueOf(chattingRoomId));
     }
 }

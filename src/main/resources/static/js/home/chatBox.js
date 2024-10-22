@@ -62,11 +62,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
         stompClient.subscribe('/subscription/chatting/1', function(message) {
             const data = JSON.parse(message.body);
             const isSender = data.userId == document.getElementById('userId').textContent;
-            loadChatMessages();
             updateChatBox(data, isSender); // 새로운 메시지를 채팅박스에 추가
         });
 
         loadChatMessages(); // 페이지 로드 시 기존 메시지 불러오기
+
     }, function(error) {
         console.error('Connection error:', error);
     });
