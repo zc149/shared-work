@@ -1,9 +1,6 @@
 package com.todo.todoList.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Date;
 
@@ -11,6 +8,7 @@ import java.sql.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 public class TodoDTO {
     private Long todoId;
     private String userName;

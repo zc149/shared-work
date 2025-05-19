@@ -23,8 +23,12 @@ public class TodoService {
     private final UserRepository userRepository;
 
     public List<TodoDTO> findTodoById(String name, Date date) {
-        List<Todo> todoList = todoRepository.findByUser_NameAndTodoDate(name,date);
+        List<Todo> todoList = todoRepository.findByUser_NameAndTodoDate(name,date).orElse(null);
         List<TodoDTO> todoDTO = new ArrayList<>();
+
+        if (todoList == null) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
 
         for (Todo todo : todoList) {
             TodoDTO dto = TodoDTO.builder()

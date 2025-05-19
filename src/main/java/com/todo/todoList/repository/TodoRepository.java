@@ -6,8 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TodoRepository extends JpaRepository<Todo,Long> {
-    List<Todo> findByUser_NameAndTodoDate(String userName, Date date);
+    Optional<List<Todo>> findByUser_NameAndTodoDate(String userName, Date date);
 }
