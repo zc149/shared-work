@@ -5,10 +5,12 @@ import com.todo.join.repository.UserRepository;
 import com.todo.todoList.dto.TodoDTO;
 import com.todo.todoList.entity.Todo;
 import com.todo.todoList.repository.TodoRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ public class TodoService {
     private final UserRepository userRepository;
 
     public List<TodoDTO> findTodoById(String name, Date date) {
-        List<Todo> todoList = todoRepository.findByUser_NameAndTodoDate(name,date).orElse(null);
+        List<Todo> todoList = todoRepository.findByUser_NameAndTodoDate(name, date);
         List<TodoDTO> todoDTO = new ArrayList<>();
 
         if (todoList == null) {
@@ -31,52 +33,46 @@ public class TodoService {
         }
 
         for (Todo todo : todoList) {
-            TodoDTO dto = TodoDTO.builder()
-                    .todoId(todo.getId())
-                    .userName(todo.getUser().getName())
-                    .todoDate(todo.getTodoDate())
-                    .status(todo.getStatus())
-                    .content(todo.getContent()).build();
-
-            todoDTO.add(dto);
+            todoDTO.add(todoDtoFromTodo(todo));
         }
         return todoDTO;
     }
 
-    public void saveTodo(TodoDTO todoDTO , String name) {
 
-            Optional<User> userOptional = Optional.ofNullable(userRepository.findByName(name));
+    public void saveTodo(TodoDTO todoDTO, String name) {
 
-            if (userOptional.isPresent()) {
-                User user = userOptional.get();
+        Optional<User> userOptional = Optional.ofNullable(userRepository.findByName(name));
 
-                Todo todo = Todo.builder()
-                        .user(user)
-                        .todoDate(todoDTO.getTodoDate())
-                        .createdDate(Date.valueOf(LocalDate.now()))
-                        .status("false")
-                        .content(todoDTO.getContent())
-                        .build();
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
 
-                todoRepository.save(todo);
+            Todo todo = Todo.builder()
+                    .user(user)
+                    .todoDate(todoDTO.getTodoDate())
+                    .createdDate(Date.valueOf(LocalDate.now()))
+                    .status("false")
+                    .content(todoDTO.getContent())
+                    .build();
+
+            todoRepository.save(todo);
         }
     }
 
 
     // 수정이랑 삭제 로직을 id로 검색하는게 아니라 findbyName으로 해서 그 아이디만 지우는게 더 좋지 않나? (생각중)
     @Transactional
-    public void updateTodo(TodoDTO todoDTO, String name) {
-        Optional<Todo> todoOptional = todoRepository.findById(todoDTO.getTodoId());
+    public void updateTodo(TodoDTO todoDTO, String name) throws AccessDeniedException {
+        Todo todo = todoRepository.findById(todoDTO.getTodoId())
+                .orElseThrow(() -> new EntityNotFoundException("Todo를 찾을 수 없습니다."));
 
-        if(todoOptional.isPresent()) {
-          Todo todo = todoOptional.get();
-            if (todo.getUser().getName().equals(name)) {
-                todo.setTodoDate(todoDTO.getTodoDate());
-                todo.setStatus(todoDTO.getStatus());
-                todo.setContent(todoDTO.getContent());
-            }
+        //FIXME N+1 문제 고려 필요
+        if (!todo.getUser().getName().equals(name)) {
+            throw new AccessDeniedException("해당 유저는 수정 권한이 없습니다.");
         }
 
+        todo.setTodoDate(todoDTO.getTodoDate());
+        todo.setStatus(todoDTO.getStatus());
+        todo.setContent(todoDTO.getContent());
     }
 
     public void deleteTodo(TodoDTO todoDTO, String name) {
@@ -84,9 +80,9 @@ public class TodoService {
 
         if (todoOptional.isPresent()) {
             Todo todo = todoOptional.get();
-                if (todo.getUser().getName().equals(name)) {
-                    todoRepository.deleteById(todoDTO.getTodoId());
-                }
+            if (todo.getUser().getName().equals(name)) {
+                todoRepository.deleteById(todoDTO.getTodoId());
+            }
         }
     }
 
@@ -94,12 +90,23 @@ public class TodoService {
     public void updateStatus(TodoDTO todoDTO, String name) {
         Optional<Todo> todoOptional = todoRepository.findById(todoDTO.getTodoId());
 
-        if(todoOptional.isPresent()) {
+        if (todoOptional.isPresent()) {
             Todo todo = todoOptional.get();
             if (todo.getUser().getName().equals(name)) {
                 todo.setStatus(todoDTO.getStatus());
             }
         }
+    }
+
+    private TodoDTO todoDtoFromTodo(Todo todo) {
+        TodoDTO dto = TodoDTO.builder()
+                .todoId(todo.getId())
+                .userName(todo.getUser().getName())
+                .todoDate(todo.getTodoDate())
+                .status(todo.getStatus())
+                .content(todo.getContent()).build();
+
+        return dto;
     }
 
 }

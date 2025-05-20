@@ -10,5 +10,5 @@ import java.util.Optional;
 
 @Repository
 public interface TodoRepository extends JpaRepository<Todo,Long> {
-    Optional<List<Todo>> findByUser_NameAndTodoDate(String userName, Date date);
+    List<Todo> findByUser_NameAndTodoDate(String userName, Date date);
 }

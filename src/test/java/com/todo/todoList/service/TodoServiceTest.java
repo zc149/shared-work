@@ -5,6 +5,7 @@ import com.todo.join.repository.UserRepository;
 import com.todo.todoList.dto.TodoDTO;
 import com.todo.todoList.entity.Todo;
 import com.todo.todoList.repository.TodoRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,12 +14,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.nio.file.AccessDeniedException;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,10 +61,10 @@ class TodoServiceTest {
         List<Todo> saved = List.of(todo1, todo2);
 
         when(todoRepository.findByUser_NameAndTodoDate(user.getName(), Date.valueOf("2024-10-16")))
-                .thenReturn(Optional.of(saved));
+                .thenReturn(saved);
 
         // When
-        List<TodoDTO> list = todoService.findTodoById(user.getName(),Date.valueOf("2024-10-16"));
+        List<TodoDTO> list = todoService.findTodoById(user.getName(), Date.valueOf("2024-10-16"));
 
         // Then
         assertThat(list).hasSize(2);
@@ -72,11 +77,11 @@ class TodoServiceTest {
     public void 존재하지_않는_회원ID는_예외를_던진다() {
         // Given
         when(todoRepository.findByUser_NameAndTodoDate("없는 아이디", Date.valueOf("2024-10-16")))
-                .thenReturn(Optional.empty());
+                .thenReturn(new ArrayList<Todo>());
 
         // When
         // Then
-        assertThatThrownBy(() -> todoService.findTodoById("없는 아이디",Date.valueOf("2024-10-16")))
+        assertThatThrownBy(() -> todoService.findTodoById("없는 아이디", Date.valueOf("2024-10-16")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("존재하지 않는 사용자입니다.");
     }
@@ -99,7 +104,7 @@ class TodoServiceTest {
         when(userRepository.findByName(userName)).thenReturn(user);
 
         // When
-        todoService.saveTodo(todoDTO,userName);
+        todoService.saveTodo(todoDTO, userName);
 
         ArgumentCaptor<Todo> captor = ArgumentCaptor.forClass(Todo.class);
         verify(todoRepository).save(captor.capture());
@@ -111,40 +116,95 @@ class TodoServiceTest {
 
     }
 
-//    @Test
-//    @DisplayName("Todo 수정")
-//    public void updateTodo() {
-//        // Given
-//        User user = User.builder()
-//                .name("testId")
-//                .build();
-//
-//        Todo todo1 = Todo.builder()
-//                .user(user)
-//                .todoDate(Date.valueOf("2024-10-16"))
-//                .status("false")
-//                .content("테스트 수정전")
-//                .build();
-//
-//        todoRepository.save(todo1);
-//
-//        // When
-//        TodoDTO todoDTO = TodoDTO.builder()
-//                .todoId(todo1.getId())
-//                .userName(user.getName())
-//                .todoDate(Date.valueOf("2024-10-16"))
-//                .status("true")
-//                .content("테스트 수정완료")
-//                .build();
-//
-//        todoService.updateTodo(todoDTO, user.getName());
-//
-//        // Then
-//        Optional<Todo> updatedTodo = todoRepository.findById(todo1.getId());
-//        Todo todo = updatedTodo.orElseThrow(() -> new AssertionError("Todo not found"));
-//        assertThat(todo.getStatus()).isEqualTo("true");
-//
-//    }
+    @Test
+    public void 회원ID로_Todo_수정() throws AccessDeniedException {
+        // Given
+        User user = User.builder()
+                .name("testId")
+                .build();
+
+        Todo todo = Todo.builder()
+                .id(1L)
+                .user(user)
+                .todoDate(Date.valueOf("2024-10-16"))
+                .status("false")
+                .content("테스트 수정전")
+                .build();
+
+        when(todoRepository.findById(1L)).thenReturn(Optional.ofNullable(todo));
+
+        // When
+        TodoDTO todoDTO = TodoDTO.builder()
+                .todoId(todo.getId())
+                .userName(user.getName())
+                .todoDate(Date.valueOf("2024-10-16"))
+                .status("true")
+                .content("테스트 수정완료")
+                .build();
+
+        todoService.updateTodo(todoDTO, user.getName());
+
+
+        // Then
+        assertEquals("테스트 수정완료", todo.getContent());
+        assertEquals("true", todo.getStatus());
+    }
+
+    @Test
+    public void 회원ID로_Todo_수정시_Todo를_찾을_수_없음() throws AccessDeniedException {
+        // Given
+        User user = User.builder()
+                .name("testId")
+                .build();
+
+        when(todoRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // When
+        // Then
+        TodoDTO todoDTO = TodoDTO.builder()
+                .todoId(1L)
+                .userName(user.getName())
+                .todoDate(Date.valueOf("2024-10-16"))
+                .status("true")
+                .content("테스트 수정완료")
+                .build();
+
+        assertThatThrownBy(() -> todoService.updateTodo(todoDTO, user.getName()))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Todo를 찾을 수 없습니다.");
+    }
+
+    @Test
+    public void 회원ID로_Todo_수정_권한이_없음() throws AccessDeniedException {
+        // Given
+        User user = User.builder()
+                .name("testId")
+                .build();
+
+        Todo todo = Todo.builder()
+                .id(1L)
+                .user(User.builder().name("invalid User").build())
+                .todoDate(Date.valueOf("2024-10-16"))
+                .status("false")
+                .content("테스트 수정전")
+                .build();
+
+        when(todoRepository.findById(1L)).thenReturn(Optional.ofNullable(todo));
+
+        // When
+        // Then
+        TodoDTO todoDTO = TodoDTO.builder()
+                .todoId(todo.getId())
+                .userName("invalid User")
+                .todoDate(Date.valueOf("2024-10-16"))
+                .status("true")
+                .content("테스트 수정완료")
+                .build();
+
+        assertThatThrownBy(() -> todoService.updateTodo(todoDTO, user.getName()))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessage("해당 유저는 수정 권한이 없습니다.");
+    }
 //
 //    @Test
 //    @DisplayName("Todo 삭제")
