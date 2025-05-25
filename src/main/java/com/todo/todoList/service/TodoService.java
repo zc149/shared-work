@@ -24,11 +24,12 @@ public class TodoService {
     private final TodoRepository todoRepository;
     private final UserRepository userRepository;
 
+    //FIXME todoList가 비었다고 존재하지 않은 사용자는 아님 -> 다른 예외 케이스 검증필요
     public List<TodoDTO> findTodoById(String name, Date date) {
         List<Todo> todoList = todoRepository.findByUser_NameAndTodoDate(name, date);
         List<TodoDTO> todoDTO = new ArrayList<>();
 
-        if (todoList == null) {
+        if (todoList.isEmpty()) {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
 
@@ -76,27 +77,25 @@ public class TodoService {
     }
 
     public void deleteTodo(TodoDTO todoDTO, String name) {
-        Optional<Todo> todoOptional = todoRepository.findById(todoDTO.getTodoId());
+        int deletedCount = todoRepository.deleteByIdAndUserName(todoDTO.getTodoId(), name);
 
-        if (todoOptional.isPresent()) {
-            Todo todo = todoOptional.get();
-            if (todo.getUser().getName().equals(name)) {
-                todoRepository.deleteById(todoDTO.getTodoId());
-            }
+        if (deletedCount == 0) {
+            throw new IllegalArgumentException("삭제할 Todo가 존재하지 않습니다.");
         }
     }
 
     @Transactional
-    public void updateStatus(TodoDTO todoDTO, String name) {
-        Optional<Todo> todoOptional = todoRepository.findById(todoDTO.getTodoId());
+    public void updateStatus(TodoDTO todoDTO, String name) throws AccessDeniedException {
+        Todo todo = todoRepository.findById(todoDTO.getTodoId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 Todo가 존재하지 않습니다."));
 
-        if (todoOptional.isPresent()) {
-            Todo todo = todoOptional.get();
-            if (todo.getUser().getName().equals(name)) {
-                todo.setStatus(todoDTO.getStatus());
-            }
+        if (!todo.getUser().getName().equals(name)) {
+            throw new AccessDeniedException("수정 권한이 없습니다.");
         }
+
+        todo.setStatus(todoDTO.getStatus());
     }
+
 
     private TodoDTO todoDtoFromTodo(Todo todo) {
         TodoDTO dto = TodoDTO.builder()
