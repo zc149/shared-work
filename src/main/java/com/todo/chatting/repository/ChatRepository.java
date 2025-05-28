@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Repository
 public interface ChatRepository extends JpaRepository<Message,Long> {
-    @Query("SELECT MAX(m.createdDate) FROM Message m")
-    Timestamp findLatestMessageDate();
+
+    Message findTopByOrderByIdDesc();
+
 }

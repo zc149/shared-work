@@ -10,10 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -23,56 +22,60 @@ public class ChatService {
     private final UserRepository userRepository;
     private final ChatRedisUtil chatRedisUtil;
 
+    //FIXME findByID 를 계속 호출하는 부분을 고쳐야함
     @Transactional
     public void saveDb(String chattingRoomId) {
 
-        Timestamp latestTimestamp = chatRepository.findLatestMessageDate();
-
+        Timestamp latestTimestamp = Optional.ofNullable(chatRepository.findTopByOrderByIdDesc()).map(Message::getCreatedDate).orElse(null);
         List<MessageDto> messages = chatRedisUtil.getChatMessages(chattingRoomId);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+        Stream<MessageDto> messageDtoStream = messages.stream();
 
-        for (MessageDto messageDTO : messages) {
-            Optional<User> userOptional = userRepository.findById(messageDTO.getUserId());
-
-            if (userOptional.isPresent()) {
-
-                User user = userOptional.get();
-                try {
-                    java.util.Date utilDate = sdf.parse(messageDTO.getDate());
-                    java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(utilDate.getTime());
-
-                    if (latestTimestamp == null || sqlTimestamp.after(latestTimestamp)) {
-                        Message chatMessage = Message.builder()
-                                .message(messageDTO.getMessage())
-                                .createdDate(sqlTimestamp)
-                                .user(user)
-                                .build();
-
-                        chatRepository.save(chatMessage);
-                    }
-                } catch (ParseException e) {
-                    throw new RuntimeException(e);
-                }
-
-            }
+        if (latestTimestamp != null) {
+            messageDtoStream = messageDtoStream.filter(
+                    messageDto -> Timestamp.valueOf(messageDto.getDate()).after(latestTimestamp)
+            );
         }
+
+        messageDtoStream.forEach(messageDTO -> userRepository.findById(messageDTO.getUserId()).ifPresent(
+                user -> {
+                    Message chatMessage = messageDtoFromMessage(messageDTO, user);
+                    chatRepository.save(chatMessage);
+                }
+        ));
+
     }
 
     @Transactional
-    public void saveAllMessagesToRedis () {
+    public void saveAllMessagesToRedis() {
         List<Message> messages = chatRepository.findAll();
 
-        for (Message message : messages) {
-            MessageDto messageDto = MessageDto.builder()
-                    .userId(message.getUser().getId())
-                    .writer(message.getUser().getNickName())
-                    .message(message.getMessage())
-                    .date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(message.getCreatedDate()))
-                    .build();
+        if (messages.isEmpty()) return;
 
-            chatRedisUtil.saveChatMessage("1", messageDto);
-        }
+        messages.forEach(
+                message -> {
+                    MessageDto messageDto = messageFromMessageDto(message);
+                    chatRedisUtil.saveChatMessage("1", messageDto);
+                });
 
+    }
+
+    private Message messageDtoFromMessage(MessageDto messageDTO, User user) {
+        Message message = Message.builder()
+                .message(messageDTO.getMessage())
+                .createdDate(Timestamp.valueOf(messageDTO.getDate()))
+                .user(user)
+                .build();
+        return message;
+    }
+
+    private MessageDto messageFromMessageDto(Message message) {
+        MessageDto messageDto = MessageDto.builder()
+                .userId(message.getUser().getId())
+                .writer(message.getUser().getNickName())
+                .message(message.getMessage())
+                .date(String.valueOf(message.getCreatedDate()))
+                .build();
+        return messageDto;
     }
 }
