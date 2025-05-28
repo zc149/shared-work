@@ -1,4 +1,4 @@
-package com.todo.chatting.test;
+package com.todo.performance;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
